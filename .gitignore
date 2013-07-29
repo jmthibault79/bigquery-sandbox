@@ -1,1 +1,6 @@
 target/
+*.class
+*.jar
+bigquery-sandbox.iml
+bigquery-sandbox.iws
+bigquery-sandbox.ipr
