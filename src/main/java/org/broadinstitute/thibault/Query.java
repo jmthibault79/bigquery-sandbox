@@ -15,18 +15,23 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class Query {
-    static QueryResponse synchronousQuery(String query, Credential credential) throws IOException {
-        Bigquery bigquery = new Bigquery(Constants.TRANSPORT, Constants.JSON_FACTORY, credential);
+    private Bigquery bigquery;
+
+    public Query(Credential credential) {
+        bigquery = new Bigquery(Constants.TRANSPORT, Constants.JSON_FACTORY, credential);
+    }
+
+    private QueryResponse synchronousQuery(String query) throws IOException {
         QueryRequest request = new QueryRequest().setQuery(query);
 
         return bigquery.jobs().query(Constants.PROJECT_ID, request).execute();
     }
 
-    static String displaySynchronousQueryResult(String query, Credential credential) throws IOException {
+    String displaySynchronousQueryResult(String query) throws IOException {
         StringBuilder s = new StringBuilder();
         s.append("Query Results:\n----------------\n");
 
-        QueryResponse response = synchronousQuery(query, credential);
+        QueryResponse response = synchronousQuery(query);
         for (TableRow row : response.getRows()) {
             for (TableCell field : row.getF()) {
                 s.append(String.format("%-50s", field.getV()));
@@ -37,9 +42,7 @@ public class Query {
         return s.toString();
     }
 
-    public static void listDatasets(Credential credential) throws IOException {
-        Bigquery bigquery = new Bigquery(Constants.TRANSPORT, Constants.JSON_FACTORY, credential);
-
+    void listDatasets() throws IOException {
         DatasetList datasetList = bigquery.datasets().list(Constants.PROJECT_ID).execute();
         if (datasetList.getDatasets() == null) {
             System.out.println("no datasets available");
