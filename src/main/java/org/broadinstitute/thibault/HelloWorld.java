@@ -1,9 +1,8 @@
-package org.broadinstitute;
+package org.broadinstitute.thibault;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
@@ -29,8 +28,9 @@ public class HelloWorld {
         } catch (Exception e) {
             System.out.println("Could not load client_secrets.json");
             e.printStackTrace();
+
+            return null;
         }
-        return null;
     }
 
     public static void main(String args[]) {

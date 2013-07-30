@@ -51,7 +51,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>org.broadinstitute.HelloWorld</mainClass>
+                            <mainClass>org.broadinstitute.thibault.HelloWorld</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
