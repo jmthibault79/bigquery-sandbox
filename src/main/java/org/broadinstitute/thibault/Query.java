@@ -1,9 +1,6 @@
 package org.broadinstitute.thibault;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.bigquery.Bigquery;
 import com.google.api.services.bigquery.model.*;
 
@@ -18,16 +15,11 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class Query {
-    private static final NetHttpTransport transport = new NetHttpTransport();
-    private static final JsonFactory jsonFactory = new JacksonFactory();
-
-    private static final String PROJECT_ID = "1008486208127";
-
     static QueryResponse synchronousQuery(String query, Credential credential) throws IOException {
-        Bigquery bigquery = new Bigquery(transport, jsonFactory, credential);
+        Bigquery bigquery = new Bigquery(Constants.TRANSPORT, Constants.JSON_FACTORY, credential);
         QueryRequest request = new QueryRequest().setQuery(query);
 
-        return bigquery.jobs().query(PROJECT_ID, request).execute();
+        return bigquery.jobs().query(Constants.PROJECT_ID, request).execute();
     }
 
     static String displaySynchronousQueryResult(String query, Credential credential) throws IOException {
@@ -46,9 +38,9 @@ public class Query {
     }
 
     public static void listDatasets(Credential credential) throws IOException {
-        Bigquery bigquery = new Bigquery(transport, jsonFactory, credential);
+        Bigquery bigquery = new Bigquery(Constants.TRANSPORT, Constants.JSON_FACTORY, credential);
 
-        DatasetList datasetList = bigquery.datasets().list(PROJECT_ID).execute();
+        DatasetList datasetList = bigquery.datasets().list(Constants.PROJECT_ID).execute();
         if (datasetList.getDatasets() == null) {
             System.out.println("no datasets available");
         }

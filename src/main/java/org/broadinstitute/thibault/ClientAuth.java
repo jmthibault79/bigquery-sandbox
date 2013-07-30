@@ -3,9 +3,6 @@ package org.broadinstitute.thibault;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -18,18 +15,13 @@ import java.io.InputStream;
  * To change this template use File | Settings | File Templates.
  */
 public class ClientAuth {
-
-    private static final String CLIENTSECRETS_LOCATION = "client_secrets.json";
-    private static final JsonFactory jsonFactory = new JacksonFactory();
-    private static final NetHttpTransport transport = new NetHttpTransport();
-
     static final GoogleClientSecrets clientSecrets = loadClientSecrets();
     static final Credential credential = buildCredential();
 
     static GoogleClientSecrets loadClientSecrets() {
         try {
-            InputStream jsonStream = new FileInputStream(CLIENTSECRETS_LOCATION);
-            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory, jsonStream);
+            InputStream jsonStream = new FileInputStream(Constants.CLIENTSECRETS_LOCATION);
+            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(Constants.JSON_FACTORY, jsonStream);
 
             return clientSecrets;
         } catch (Exception e) {
@@ -42,9 +34,9 @@ public class ClientAuth {
     static Credential buildCredential() {
         try {
             GoogleCredential.Builder credentialBuilder = new GoogleCredential.Builder();
-            credentialBuilder.setJsonFactory(jsonFactory);
+            credentialBuilder.setJsonFactory(Constants.JSON_FACTORY);
             credentialBuilder.setClientSecrets(clientSecrets);
-            credentialBuilder.setTransport(transport);
+            credentialBuilder.setTransport(Constants.TRANSPORT);
 
             return credentialBuilder.build();
         } catch (Exception e) {
