@@ -1,17 +1,6 @@
 package org.broadinstitute.thibault;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.bigquery.BigqueryScopes;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,12 +10,18 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class HelloWorld {
-    private static final String PROJECT_ID = "1008486208127";
-    private static final List SCOPES = Arrays.asList(BigqueryScopes.BIGQUERY);
-
     public static void main(String args[]) {
         System.out.println("Client Secrets loaded: " + ClientAuth.clientSecrets);
         System.out.println("Client Credential built: " + ClientAuth.credential);
+
         System.out.println("Service Credential built: " + ServiceAuth.credential);
+
+        String wikiQuery = "SELECT TOP(title, 10) as title, COUNT(*) as revision_count FROM [publicdata:samples.wikipedia] WHERE wp_namespace = 0;";
+        try {
+            System.out.println(Query.displaySynchronousQueryResult(wikiQuery, ServiceAuth.credential));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
