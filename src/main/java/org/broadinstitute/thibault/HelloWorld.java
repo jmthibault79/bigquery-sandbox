@@ -19,7 +19,8 @@ public class HelloWorld {
         String wikiQuery = "SELECT TOP(title, 10) as title, COUNT(*) as revision_count FROM [publicdata:samples.wikipedia] WHERE wp_namespace = 0;";
         try {
             Query query = new Query(ServiceAuth.credential);
-            System.out.println(query.displaySynchronousQueryResult(wikiQuery));
+            query.displaySynchronousQueryResult(wikiQuery);
+            query.displayAsynchronousQueryResult(wikiQuery);
             query.listDatasets();
         } catch (IOException e) {
             e.printStackTrace();

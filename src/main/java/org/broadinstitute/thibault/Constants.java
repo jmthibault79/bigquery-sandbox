@@ -25,4 +25,5 @@ public class Constants {
     static final String SERVICE_ACCOUNT_ID = "1008486208127-2o9v0e7b6ge70lmmm3ur4l5f1l4op1lg@developer.gserviceaccount.com";
     static final String SERVICE_PRIVATE_KEY_LOCATION = "6dc91078d724087ecead3522126559dfc965c656-privatekey.p12";
     static final String PROJECT_ID = "1008486208127";
+    static final long ASYNCHRONOUS_WAIT_TIME = 5000;
 }

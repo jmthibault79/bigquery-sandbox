@@ -21,18 +21,10 @@ public class Query {
         bigquery = new Bigquery(Constants.TRANSPORT, Constants.JSON_FACTORY, credential);
     }
 
-    private QueryResponse synchronousQuery(String query) throws IOException {
-        QueryRequest request = new QueryRequest().setQuery(query);
-
-        return bigquery.jobs().query(Constants.PROJECT_ID, request).execute();
-    }
-
-    String displaySynchronousQueryResult(String query) throws IOException {
+    private String displayQueryResult(Iterable<TableRow> responseRows) throws IOException {
         StringBuilder s = new StringBuilder();
         s.append("Query Results:\n----------------\n");
-
-        QueryResponse response = synchronousQuery(query);
-        for (TableRow row : response.getRows()) {
+        for (TableRow row : responseRows) {
             for (TableCell field : row.getF()) {
                 s.append(String.format("%-50s", field.getV()));
             }
@@ -40,6 +32,61 @@ public class Query {
         }
 
         return s.toString();
+    }
+
+    private QueryResponse synchronousQuery(String query) throws IOException {
+        QueryRequest request = new QueryRequest().setQuery(query);
+
+        return bigquery.jobs().query(Constants.PROJECT_ID, request).execute();
+    }
+
+    void displaySynchronousQueryResult(String query) throws IOException {
+        QueryResponse response = synchronousQuery(query);
+        System.out.println(displayQueryResult(response.getRows()));
+    }
+
+    private JobReference asynchronousQuery(String query) throws IOException {
+        JobConfigurationQuery queryConfig = new JobConfigurationQuery().setQuery(query);
+        JobConfiguration config = new JobConfiguration().setQuery(queryConfig);
+        Job job = new Job().setConfiguration(config);
+
+        return bigquery.jobs().insert(Constants.PROJECT_ID, job).execute().getJobReference();
+    }
+
+    private boolean waitForAsynchronousQueryCompletion(JobReference job, long msToWait) throws IOException, InterruptedException {
+        long startTime = System.currentTimeMillis();
+        long elapsedTime = 0;
+
+        while (msToWait > elapsedTime) {
+            Job pollJob = bigquery.jobs().get(Constants.PROJECT_ID, job.getJobId()).execute();
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.format("Job status (%dms) %s: %s\n", elapsedTime,
+                    job.getJobId(), pollJob.getStatus().getState());
+
+            if (pollJob.getStatus().getState().equals("DONE")) {
+                return true;
+            }
+
+            Thread.sleep(1000);
+        }
+
+        return false;
+    }
+
+    void displayAsynchronousQueryResult(String query) throws IOException {
+        JobReference job = asynchronousQuery(query);
+        try{
+            if (waitForAsynchronousQueryCompletion(job, Constants.ASYNCHRONOUS_WAIT_TIME)) {
+                GetQueryResultsResponse response = bigquery.jobs().getQueryResults(Constants.PROJECT_ID, job.getJobId()).execute();
+                System.out.println(displayQueryResult(response.getRows()));
+            }
+            else {
+                System.out.format("Query did not complete after %d ms\n", Constants.ASYNCHRONOUS_WAIT_TIME);
+            }
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     void listDatasets() throws IOException {
