@@ -27,5 +27,6 @@ public class HelloWorld {
     public static void main(String args[]) {
         System.out.println("Client Secrets loaded: " + ClientAuth.clientSecrets);
         System.out.println("Client Credential built: " + ClientAuth.credential);
+        System.out.println("Service Credential built: " + ServiceAuth.credential);
     }
 }
