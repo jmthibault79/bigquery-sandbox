@@ -21,7 +21,8 @@ public class HelloWorld {
             Query query = new Query(ServiceAuth.credential);
             query.displaySynchronousQueryResult(wikiQuery);
             query.displayAsynchronousQueryResult(wikiQuery);
-            query.listDatasets();
+            query.listDatasets(Constants.PROJECT_ID);
+            query.listDatasets("publicdata");
         } catch (IOException e) {
             e.printStackTrace();
         }

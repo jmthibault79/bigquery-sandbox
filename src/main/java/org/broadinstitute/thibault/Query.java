@@ -89,8 +89,8 @@ public class Query {
         }
     }
 
-    void listDatasets() throws IOException {
-        DatasetList datasetList = bigquery.datasets().list(Constants.PROJECT_ID).execute();
+    void listDatasets(String projectId) throws IOException {
+        DatasetList datasetList = bigquery.datasets().list(projectId).execute();
         if (datasetList.getDatasets() == null) {
             System.out.println("no datasets available");
         }
