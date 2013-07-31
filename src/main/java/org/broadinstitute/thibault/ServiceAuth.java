@@ -13,9 +13,16 @@ import java.io.File;
  * To change this template use File | Settings | File Templates.
  */
 public class ServiceAuth {
-    static final Credential credential = buildCredential();
+    private static Credential credential = null;
 
-    static Credential buildCredential() {
+    public static Credential getCredential() {
+        if (credential == null)
+            credential = buildCredential();
+
+        return credential;
+    }
+
+    private static Credential buildCredential() {
         try {
             GoogleCredential.Builder credentialBuilder = new GoogleCredential.Builder();
             credentialBuilder.setJsonFactory(Constants.JSON_FACTORY);
@@ -24,7 +31,9 @@ public class ServiceAuth {
             credentialBuilder.setServiceAccountId(Constants.SERVICE_ACCOUNT_ID);
             credentialBuilder.setServiceAccountPrivateKeyFromP12File(new File(Constants.SERVICE_PRIVATE_KEY_LOCATION));
 
-            return credentialBuilder.build();
+            Credential c = credentialBuilder.build();
+            System.out.println("Service Credential built.");
+            return c;
         } catch (Exception e) {
             System.out.println("Could not build the credential");
             e.printStackTrace();

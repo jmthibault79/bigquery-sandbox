@@ -1,11 +1,12 @@
 package org.broadinstitute.thibault;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.*;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,10 +16,25 @@ import java.io.InputStream;
  * To change this template use File | Settings | File Templates.
  */
 public class ClientAuth {
-    static final GoogleClientSecrets clientSecrets = loadClientSecrets();
-    static final Credential credential = buildCredential();
+    private static GoogleClientSecrets clientSecrets = null;
+    private static Credential credential = null;
+    private static GoogleAuthorizationCodeFlow flow = null;
 
-    static GoogleClientSecrets loadClientSecrets() {
+    private static GoogleClientSecrets getClientSecrets() {
+        if (clientSecrets == null)
+            clientSecrets = loadClientSecrets();
+
+        return clientSecrets;
+    }
+
+    public static Credential getCredential() {
+        if (credential == null)
+            credential = buildCredential();
+
+        return credential;
+    }
+
+    private static GoogleClientSecrets loadClientSecrets() {
         try {
             InputStream jsonStream = new FileInputStream(Constants.CLIENTSECRETS_LOCATION);
             GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(Constants.JSON_FACTORY, jsonStream);
@@ -31,14 +47,33 @@ public class ClientAuth {
         }
     }
 
-    static Credential buildCredential() {
-        try {
-            GoogleCredential.Builder credentialBuilder = new GoogleCredential.Builder();
-            credentialBuilder.setJsonFactory(Constants.JSON_FACTORY);
-            credentialBuilder.setClientSecrets(clientSecrets);
-            credentialBuilder.setTransport(Constants.TRANSPORT);
+    private static GoogleAuthorizationCodeFlow getFlow() {
+        if (flow == null) {
+            flow = new GoogleAuthorizationCodeFlow.Builder(Constants.TRANSPORT, Constants.JSON_FACTORY, getClientSecrets(), Constants.SCOPES)
+                    .setAccessType("offline").setApprovalPrompt("force").build();
+        }
+        return flow;
+    }
 
-            return credentialBuilder.build();
+    private static Credential buildCredential() {
+        try {
+            String authorizeUrl = new GoogleAuthorizationCodeRequestUrl(
+                    getClientSecrets(),
+                    Constants.REDIRECT_URI,
+                    Constants.SCOPES).setState("").build();
+
+            System.out.println("Paste this URL into a web browser to authorize BigQuery Access:\n" + authorizeUrl);
+
+            System.out.println("... and type the code you received here: ");
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            String authorizationCode = in.readLine();
+
+            GoogleAuthorizationCodeFlow flow = getFlow();
+            GoogleTokenResponse response = flow.newTokenRequest(authorizationCode).setRedirectUri(Constants.REDIRECT_URI).execute();
+
+            Credential c = flow.createAndStoreCredential(response, null);
+            System.out.println("Client Credential built.");
+            return c;
         } catch (Exception e) {
             System.out.println("Could not build the credential");
             e.printStackTrace();

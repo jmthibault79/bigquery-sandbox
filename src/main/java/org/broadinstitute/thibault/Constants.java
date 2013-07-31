@@ -26,4 +26,5 @@ public class Constants {
     static final String SERVICE_PRIVATE_KEY_LOCATION = "6dc91078d724087ecead3522126559dfc965c656-privatekey.p12";
     static final String PROJECT_ID = "1008486208127";
     static final long ASYNCHRONOUS_WAIT_TIME = 5000;
+    static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 }
