@@ -53,35 +53,15 @@ public class Query {
         return bigquery.jobs().insert(Constants.PROJECT_ID, job).execute().getJobReference();
     }
 
-    private boolean waitForAsynchronousQueryCompletion(JobReference job, long msToWait) throws IOException, InterruptedException {
-        long startTime = System.currentTimeMillis();
-        long elapsedTime = 0;
-
-        while (msToWait > elapsedTime) {
-            Job pollJob = bigquery.jobs().get(Constants.PROJECT_ID, job.getJobId()).execute();
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.format("Job status (%dms) %s: %s\n", elapsedTime,
-                    job.getJobId(), pollJob.getStatus().getState());
-
-            if (pollJob.getStatus().getState().equals("DONE")) {
-                return true;
-            }
-
-            Thread.sleep(1000);
-        }
-
-        return false;
-    }
-
     void displayAsynchronousQueryResult(String query) throws IOException {
         JobReference job = asynchronousQuery(query);
         try{
-            if (waitForAsynchronousQueryCompletion(job, Constants.ASYNCHRONOUS_WAIT_TIME)) {
+            if (HelloWorld.waitForJobCompletion(job, bigquery)) {
                 GetQueryResultsResponse response = bigquery.jobs().getQueryResults(Constants.PROJECT_ID, job.getJobId()).execute();
                 System.out.println(displayQueryResult(response.getRows()));
             }
             else {
-                System.out.format("Query did not complete after %d ms\n", Constants.ASYNCHRONOUS_WAIT_TIME);
+                System.out.format("Query did not complete after %d ms\n", Constants.WAIT_TIME);
             }
         }
         catch (InterruptedException e) {
@@ -102,6 +82,5 @@ public class Query {
             }
         }
     }
-
 
 }
